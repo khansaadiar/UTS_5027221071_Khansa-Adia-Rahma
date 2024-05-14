@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Siswa</title>
+</head>
+<body>
+    <h1>Data Siswa</h1>
+    <a href="/tambah">Tambah Siswa</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nama</th>
+                <th>Nilai</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for siswa in data_siswa %}
+            <tr>
+                <td>{{ siswa.id }}</td>
+                <td>{{ siswa.nama }}</td>
+                <td>{{ siswa.nilai }}</td>
+                <td>
+                    <a href="/edit/{{ siswa.id }}">Edit</a>
+                    <form action="/hapus/{{ siswa.id }}" method="post">
+                        <button type="submit" onclick="return confirm('Apakah Anda yakin ingin menghapus siswa ini?')">Hapus</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
