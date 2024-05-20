@@ -1,11 +1,12 @@
-# UTS Integrasi Sistem 2024
+#UTS Integrasi Sistem 2024
 
-## Implementasi gRPC API dan Protobuf
+##Implementasi gRPC API dan Protobuf
 
 **Khansa Adia Rahma**  
 **5027221071**
 
-![Grade Management System](image/GradeSystem.png)
+![Grade Management System]
+image/GradeSystem.png
 
 ### Introduction
 This project showcases the implementation of a Grade Management System using gRPC API and Protobuf. gRPC (gRPC Remote Procedure Call) is a modern, high-performance framework for efficient communication between distributed systems, while Protobuf (Protocol Buffers) provides a language-agnostic and efficient mechanism for serializing structured data.
