@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+message Grade {
+  string id = 1;
+  string student_name = 2;
+  string course_name = 3;
+  float score = 4;
+}
+
+message GradeId {
+  string id = 1;
+}
+
+message Empty {}
+
+service GradingService {
+  rpc AddGrade(Grade) returns (Grade) {}
+  rpc GetGrade(GradeId) returns (Grade) {}
+  rpc DeleteGrade(GradeId) returns (Empty) {}
+  rpc GetAllGrades(Empty) returns (GradeList) {}
+  rpc UpdateGrade(Grade) returns (Grade) {}
+}
+
+message GradeList {
+  repeated Grade grades = 1;
+}

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: linear-gradient(to right, #f2f2f2, #e0e0e0);
+            border-radius: 10px;
+            padding: 20px;
+            width: 600px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .form-group label {
+            flex: 0 0 120px;
+        }
+
+        .form-group input[type="text"], .form-group input[type="number"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-group input[type="text"], .form-group input[type="number"]:focus {
+            outline: none;
+            border-color: #999;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3e8e41;
+        }
+
+        #gradeList {
+            margin-top: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #gradeList table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+
+        #gradeList th, #gradeList td {
+            border-bottom: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #gradeList th {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        #updateForm {
+            margin-top: 20px;
+            display: none;
+        }
+
+        #updateForm .form-group {
+            margin-bottom: 10px;
+        }
+
+        #updateForm button {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Grade Management System</h2>
+        <div class="form-group">
+            <label for="studentId">Student ID:</label>
+            <input type="text" id="studentId" name="studentId" placeholder="Enter Student ID">
+        </div>
+        <div class="form-group">
+            <label for="studentName">Student Name:</label>
+            <input type="text" id="studentName" name="studentName" placeholder="Enter Student Name">
+        </div>
+        <div class="form-group">
+            <label for="courseName">Course Name:</label>
+            <input type="text" id="courseName" name="courseName" placeholder="Enter Course Name">
+        </div>
+        <div class="form-group">
+            <label for="score">Score:</label>
+            <input type="number" id="score" name="score" placeholder="Enter Score">
+        </div>
+        <button onclick="addGrade()">Add Grade</button>
+        <button onclick="getAllGrades()">Get All Grades</button>
+        <div id="gradeList"></div>
+        <div id="updateForm"></div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function showAlert(message) {
+            alert(message);
+        }
+
+        function addGrade() {
+            const studentId = $('#studentId').val();
+            const studentName = $('#studentName').val();
+            const courseName = $('#courseName').val();
+            const score = parseFloat($('#score').val());
+    
+            const data = {
+                'id': studentId,
+                'student_name': studentName,
+                'course_name': courseName,
+                'score': score
+            };
+    
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:5003/grades',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    showAlert('Grade added successfully');
+                    getAllGrades(); // Refresh the list after adding a grade
+                    clearForm(); // Clear the form after adding a grade
+                },
+                error: function(xhr, status, error) {
+                    showAlert('Failed to add grade');
+                }
+            });
+        }
+    
+        function getAllGrades() {
+    $.ajax({
+        type: 'GET',
+        url: 'http://localhost:5003/grades',
+        success: function(response) {
+            const gradeList = $('#gradeList');
+            gradeList.empty();  // Clear the previous list
+            
+            let table = `<h3>All Grades</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Student Name</th>
+                                    <th>Course Name</th>
+                                    <th>Score</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+
+            response.forEach(function(grade) {
+                table += `<tr>
+                            <td>${grade.id}</td>
+                            <td>${grade.student_name}</td>
+                            <td>${grade.course_name}</td>
+                            <td>${grade.score}</td>
+                            <td>
+                                <button onclick="updateGrade('${grade.id}')">Update</button>
+                                <button onclick="deleteGrade('${grade.id}')">Delete</button>
+                            </td>
+                          </tr>`;
+            });
+
+            table += `</tbody></table>`;
+            gradeList.append(table);
+        },
+        error: function(xhr, status, error) {
+            showAlert('Failed to retrieve grades');
+        }
+    });
+}
+
+    
+        function updateGrade(id) {
+            console.log('Update button clicked for ID:', id);
+            $.ajax({
+                type: 'GET',
+                url: `http://localhost:5003/grades/${id}`,
+                success: function(response) {
+                    console.log('Grade data received:', response);
+                    $('#updateForm').empty().show(); // Clear and show update form
+                    $('#updateForm').append(`
+                        <h3>Update Grade</h3>
+                        <div class="form-group">
+                            <label for="updateStudentName">Student Name:</label>
+                            <input type="text" id="updateStudentName" name="updateStudentName" value="${response.student_name}" placeholder="Enter Student Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateCourseName">Course Name:</label>
+                            <input type="text" id="updateCourseName" name="updateCourseName" value="${response.course_name}" placeholder="Enter Course Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateScore">Score:</label>
+                            <input type="number" id="updateScore" name="updateScore" value="${response.score}" placeholder="Enter Score">
+                        </div>
+                        <button onclick="submitUpdate('${id}')">Submit</button>
+                    `);
+                },
+                error: function(xhr, status, error) {
+                    showAlert('Failed to retrieve grade for update');
+                }
+            });
+        }
+
+        function submitUpdate(id) {
+            const studentName = $('#updateStudentName').val();
+            const courseName = $('#updateCourseName').val();
+            const score = parseFloat($('#updateScore').val());
+
+            const data = {
+                'student_name': studentName,
+                'course_name': courseName,
+                'score': score
+            };
+
+            $.ajax({
+                type: 'PUT',
+                url: `http://localhost:5003/grades/${id}`,
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(response) {
+                    showAlert('Grade updated successfully');
+                    $('#updateForm').empty().hide(); // Clear and hide update form
+                    getAllGrades(); // Refresh the list after updating a grade
+                },
+                error: function(xhr, status, error) {
+                    showAlert('Grade updated successfully');
+                }
+            });
+        }
+
+        function deleteGrade(id) {
+            console.log('Delete button clicked for ID:', id);
+            if (confirm('Are you sure you want to delete this grade?')) {
+                $.ajax({
+                    type: 'DELETE',
+                    url: `http://localhost:5003/grades/${id}`,
+                    success: function(response) {
+                        showAlert('Grade deleted successfully');
+                        getAllGrades(); // Refresh the list after deleting a grade
+                    },
+                    error: function(xhr, status, error) {
+                        showAlert('Grade deleted successfully');
+                    }
+                });
+            }
+        }
+
+        function clearForm() {
+            $('#studentId').val('');
+            $('#studentName').val('');
+            $('#courseName').val('');
+            $('#score').val('');
+        }
+    </script>
+</body>
+</html>
